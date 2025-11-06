@@ -39,27 +39,40 @@ exports.gettask = async (req, res) => {
 exports.gettask=async(req,res)=>{
     try{
         const tasks=await taskmodel.find()
-        return res.status(200).json({message:"sucess",data:tasks})
+        return res.status(200).json(tasks)
     }
     catch(err){
+       console.error("❌ gettask error:", err)
         return res.status(500).json({message:`server error ${err.message}`})
     }
 }
 
-exports.updatetask=async(req,res)=>{
-    try{
-    const {id}=req.params
-    console.log(id)
-    const {title, description,status,dueDate}=req.body
-        const updatedtask=await taskmodel.findByIdAndUpdate(id,{title, description,status,dueDate})
-    if(!updateduser)
-            return res.status(404).json({message:" task not found"})
-        return res.status(200).json({message:"successfully updated task",data:updateduser})
-}
-    catch(err){
-        return res.status(500).json({message:`server error ${err.message}`})
-    }
-}
+exports.updatetask = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log("Updating Task ID:", id);
+    console.log("Body:", req.body);
+
+    const { title, description, status, dueDate } = req.body;
+
+    const updatedtask = await taskmodel.findByIdAndUpdate(
+      id,
+      { title, description, status, dueDate },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedtask)
+      return res.status(404).json({ message: "Task not found" });
+
+    return res.status(200).json({
+      message: "Successfully updated task",
+      data: updatedtask,
+    });
+  } catch (err) {
+    console.error("Update error:", err);
+    return res.status(500).json({ message: `Server error ${err.message}` });
+  }
+};
 
 
 exports.deletetask=async(req,res)=>{
@@ -68,12 +81,13 @@ exports.deletetask=async(req,res)=>{
     console.log(id)
         const deletedtask=await taskmodel.findByIdAndDelete(id)
    
-    if(!deleteduser)
+    if(!deletedtask)
             return res.status(404).json({message:" task not found"})
     return res.status(200).json({message:"success",data:deletedtask})
 
 }
     catch(err){
+          console.error("Delete task error:", err);
         return res.status(500).json({message:`server error ${err.message}`})
     }
 }
